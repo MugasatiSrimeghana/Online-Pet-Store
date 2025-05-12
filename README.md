@@ -15,6 +15,8 @@ This project is a Java-based graphical user interface (GUI) that simulates an on
 
 * Place an order and get the total amount.
 
+* Main code can be found ->[here](https://github.com/MugasatiSrimeghana/Online-Pet-Store/blob/main/Main%20Code)
+
 #### This system uses JList for displaying available pets, JButton for navigation, and JLabel for displaying information such as pet names and prices. The entire interface is built using the Swing framework, with layout management handled through CardLayout and BorderLayout.
 
 ## Tools Used
