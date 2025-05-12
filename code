@@ -1,0 +1,271 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+
+public class PetStoreGUI {
+    int total = 0;
+    private JFrame frame;
+    private CardLayout cardLayout;
+    private JPanel cardPanel;
+    private DefaultListModel<Pet> petListModel;
+    private JList<Pet> petList;
+    private ArrayList<Pet> cart = new ArrayList<>();
+    private String currentUser = "";
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new PetStoreGUI().createAndShowGUI());
+    }
+
+    public void createAndShowGUI() {
+        frame = new JFrame("Online Pet Store");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(700, 600);
+
+        cardLayout = new CardLayout();
+        cardPanel = new JPanel(cardLayout);
+
+        cardPanel.add(createLoginPanel(), "Login");
+        cardPanel.add(createStorePanel(), "Store");
+
+        frame.add(cardPanel);
+        frame.setVisible(true);
+    }
+
+    private JPanel createLoginPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        JLabel label = new JLabel("Enter Username:");
+        JTextField usernameField = new JTextField(15);
+        JButton loginButton = new JButton("Login");
+
+        loginButton.addActionListener(e -> {
+            currentUser = usernameField.getText().trim();
+            if (!currentUser.isEmpty()) {
+                cardLayout.show(cardPanel, "Store");
+            } else {
+                JOptionPane.showMessageDialog(frame, "Username cannot be empty.");
+            }
+        });
+
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.gridx = 0; gbc.gridy = 0;
+        panel.add(label, gbc);
+        gbc.gridx = 1;
+        panel.add(usernameField, gbc);
+        gbc.gridx = 1; gbc.gridy = 1;
+        panel.add(loginButton, gbc);
+
+        return panel;
+    }
+
+    private JPanel createStorePanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+
+        JLabel welcomeLabel = new JLabel("Welcome to the Pet Store! What would you like to buy today?");
+        welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 16));
+
+        String[] options = {"Dogs", "Cats", "Fish", "Rabbits", "Pet Food", "Accessories", "View Cart"};
+        JPanel buttonPanel = new JPanel(new GridLayout(4, 2, 10, 10));
+        for (String option : options) {
+            JButton btn = new JButton(option);
+            btn.setFont(new Font("Arial", Font.PLAIN, 14));
+            btn.setBackground(new Color(230, 230, 250));
+            if (option.equals("View Cart")) {
+                btn.addActionListener(e -> showCart());
+            } else {
+                btn.addActionListener(e -> showPetList(option));
+            }
+            buttonPanel.add(btn);
+        }
+
+        panel.add(welcomeLabel, BorderLayout.NORTH);
+        panel.add(buttonPanel, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private void showPetList(String petType) {
+        JPanel petPanel = new JPanel(new BorderLayout());
+
+        JButton backButton = new JButton("Back");
+        backButton.addActionListener(e -> cardLayout.show(cardPanel, "Store"));
+
+        petListModel = new DefaultListModel<>();
+        petList = new JList<>(petListModel);
+        petList.setCellRenderer(new PetCellRenderer());
+        petList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        switch (petType) {
+            case "Dogs":
+                addDogPets();
+                break;
+            case "Cats":
+                addCatPets();
+                break;
+            case "Fish":
+                addFishPets();
+                break;
+            case "Rabbits":
+                addRabbitPets();
+                break;
+            case "Pet Food":
+                addPet("Dog Food Pack", "food", 1200, "C:/Users/VENKATA/online pet store/images/foodfoodpack.jpeg");
+                addPet("Cat Food Pack", "food", 1000, "C:/Users/VENKATA/online pet store/images/catfoodpack.jpeg");
+                addPet("Fish Flakes", "food", 400, "C:/Users/VENKATA/online pet store/images/fishfoodpach.jpeg");
+                break;
+            case "Accessories":
+                addPet("Dog Collar", "accessory", 300, "C:/Users/VENKATA/online pet store/images/dogcollor.jpeg");
+                addPet("Cat Toy", "accessory", 200, "C:/Users/VENKATA/online pet store/images/cattoy.jpeg");
+                addPet("Fish Tank Decor", "accessory", 500, "C:/Users/VENKATA/online pet store/images/fishtank.jpeg");
+                break;
+        }
+
+        JScrollPane scrollPane = new JScrollPane(petList);
+        JButton addToCartButton = new JButton("Add to Cart");
+        addToCartButton.setBackground(new Color(0, 128, 0));
+        addToCartButton.setForeground(Color.WHITE);
+        addToCartButton.setFont(new Font("Arial", Font.BOLD, 14));
+        addToCartButton.addActionListener(e -> {
+            Pet selected = petList.getSelectedValue();
+            if (selected != null) {
+                cart.add(selected);
+                JOptionPane.showMessageDialog(frame, selected.getName() + " added to cart.");
+            }
+        });
+
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.add(backButton);
+        bottomPanel.add(addToCartButton);
+
+        petPanel.add(scrollPane, BorderLayout.CENTER);
+        petPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        cardPanel.add(petPanel, "PetList");
+        cardLayout.show(cardPanel, "PetList");
+    }
+
+    private void addDogPets() {
+        addPet("Golden Retriever", "dog", 45000, "C:/Users/VENKATA/online pet store/images/golden_retriever.jpeg");
+        addPet("German Shepherd", "dog", 60000, "C:/Users/VENKATA/online pet store/images/german_shepherd.jpeg");
+        addPet("Beagle", "dog", 30000, "C:/Users/VENKATA/online pet store/images/beagle.jpeg");
+        addPet("Labrador", "dog", 40000, "C:/Users/VENKATA/online pet store/images/labrador.jpeg");
+        addPet("Pomeranian", "dog", 35000, "C:/Users/VENKATA/online pet store/images/pomeranian.jpeg");
+        addPet("Bulldog", "dog", 38000, "C:/Users/VENKATA/online pet store/images/bulldog.jpeg");
+    }
+
+    private void addCatPets() {
+        addPet("Persian Cat", "cat", 25000, "C:/Users/VENKATA/online pet store/images/persian_cat.jpeg");
+        addPet("Siamese Cat", "cat", 20000, "C:/Users/VENKATA/online pet store/images/siamese_cat.jpeg");
+        addPet("British Shorthair", "cat", 27000, "C:/Users/VENKATA/online pet store/images/british_shorthair.jpeg");
+        addPet("Maine Coon", "cat", 30000, "C:/Users/VENKATA/online pet store/images/maine_coon.jpeg");
+        addPet("Ragdoll", "cat", 28000, "C:/Users/VENKATA/online pet store/images/ragdoll.jpeg");
+        addPet("Bengal Cat", "cat", 26000, "C:/Users/VENKATA/online pet store/images/bengal_cat.jpeg");
+    }
+
+    private void addFishPets() {
+        addPet("Goldfish", "fish", 500, "C:/Users/VENKATA/online pet store/images/goldfish.jpeg");
+        addPet("Betta Fish", "fish", 300, "C:/Users/VENKATA/online pet store/images/betta_fish.jpeg");
+        addPet("Glofish", "fish", 700, "C:/Users/VENKATA/online pet store/images/glofish.jpeg");
+        addPet("Molly", "fish", 400, "C:/Users/VENKATA/online pet store/images/molly.jpeg");
+        addPet("Zebra Danio", "fish", 450, "C:/Users/VENKATA/online pet store/images/zebra_danio.jpeg");
+        addPet("Blue Tang", "fish", 1000, "C:/Users/VENKATA/online pet store/images/blue_tang.jpeg");
+    }
+
+    private void addRabbitPets() {
+        addPet("Dutch Rabbit", "rabbit", 1500, "C:/Users/VENKATA/online pet store/images/dutch_rabbit.jpeg");
+        addPet("Lionhead Rabbit", "rabbit", 1800, "C:/Users/VENKATA/online pet store/images/lionhead_rabbit.jpeg");
+        addPet("Mini Lop", "rabbit", 2000, "C:/Users/VENKATA/online pet store/images/mini_lop.jpeg");
+        addPet("Flemish Giant", "rabbit", 2200, "C:/Users/VENKATA/online pet store/images/flemish_giant.jpeg");
+        addPet("Angora Rabbit", "rabbit", 2400, "C:/Users/VENKATA/online pet store/images/angora_rabbit.jpeg");
+        addPet("Harlequin Rabbit", "rabbit", 2600, "C:/Users/VENKATA/online pet store/images/harlequin_rabbit.jpeg");
+    }
+
+    private void addPet(String name, String type, int price, String imagePath) {
+        ImageIcon icon = (imagePath != null) ? new ImageIcon(imagePath) : null;
+        Pet pet = new Pet(name, type, price, icon);
+        petListModel.addElement(pet);
+    }
+
+    private void showCart() {
+        JPanel cartPanel = new JPanel(new BorderLayout());
+
+        DefaultListModel<String> cartModel = new DefaultListModel<>();
+        
+        for (Pet pet : cart) {
+            cartModel.addElement(pet.getName() + " - Rs." + pet.getPrice());
+            total += pet.getPrice();
+        }
+
+        JList<String> cartList = new JList<>(cartModel);
+        JScrollPane scrollPane = new JScrollPane(cartList);
+
+        JLabel totalLabel = new JLabel("Total: Rs." + total);
+        totalLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        totalLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        JButton backButton = new JButton("Back to Store");
+        backButton.addActionListener(e -> cardLayout.show(cardPanel, "Store"));
+
+        JButton buyButton = new JButton("Buy Now");
+        buyButton.addActionListener(e -> {
+            if (!cart.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Order placed successfully for " + currentUser + "!\nTotal: Rs." + total);
+                cart.clear();
+            } else {
+                JOptionPane.showMessageDialog(frame, "Your cart is empty!");
+            }
+            cardLayout.show(cardPanel, "Store");
+        });
+
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.add(backButton);
+        bottomPanel.add(buyButton);
+
+        cartPanel.add(scrollPane, BorderLayout.CENTER);
+        cartPanel.add(totalLabel, BorderLayout.NORTH);
+        cartPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        cardPanel.add(cartPanel, "Cart");
+        cardLayout.show(cardPanel, "Cart");
+    }
+
+    class Pet {
+        private String name, type;
+        private int price;
+        private ImageIcon image;
+
+        public Pet(String name, String type, int price, ImageIcon image) {
+            this.name = name;
+            this.type = type;
+            this.price = price;
+            this.image = image;
+        }
+
+        public String getName() { return name; }
+        public int getPrice() { return price; }
+        public ImageIcon getImage() { return image; }
+        public String toString() { return name + " - Rs." + price; }
+    }
+
+    class PetCellRenderer extends JLabel implements ListCellRenderer<Pet> {
+        public Component getListCellRendererComponent(JList<? extends Pet> list, Pet value, int index, boolean isSelected, boolean cellHasFocus) {
+            setText(value.getName() + " - Rs." + value.getPrice());
+            setIcon(value.getImage());
+            setHorizontalTextPosition(JLabel.RIGHT);
+            setVerticalTextPosition(JLabel.CENTER);
+            setOpaque(true);
+            if (isSelected) {
+                setBackground(new Color(0, 128, 0));
+                setForeground(Color.WHITE);
+            } else {
+                setBackground(Color.WHITE);
+                setForeground(Color.BLACK);
+            }
+            return this;
+        }
+    }
+}
